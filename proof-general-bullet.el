@@ -1,9 +1,10 @@
 ;;; proof-general-bullet.el --- PG Coq auto bullet  -*- lexical-binding: t -*-
 
 ;; Author: Daniil Iaitskov <dyaitskov@gmail.com>
+;; URL: https://github.com/yaitskov/proof-general-bullet
 ;; Version: 0.0.1
 ;; Keywords: proof assisnat, PG, proof-general, Coq, Rocq
-;; Package-Requires ((emacs "25.5"))
+;; Package-Requires ((emacs "27.5"))
 
 ;; This file is NOT part of GNU Emacs.
 
