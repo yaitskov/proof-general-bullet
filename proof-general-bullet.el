@@ -117,6 +117,69 @@
 
 (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
 
+(setq bullet-regexp (rx (or (+ "-") (+ "*") (+ "+")) (+ " ")))
+(setq sync-bullet-regexes
+      (list
+       (cons (rx line-start (group (= 2 " ")) (regexp bullet-regexp)) "  - ")
+       (cons (rx line-start (group (= 4 " ")) (regexp bullet-regexp)) "\\1+ ")
+       (cons (rx line-start (group (= 6 " ")) (regexp bullet-regexp)) "\\1* ")
+       (cons (rx line-start (group (** 8 10 " ")) (regexp bullet-regexp)) "\\1-- ")
+       (cons (rx line-start (group (** 11 13 " ")) (regexp bullet-regexp)) "\\1++ ")
+       (cons (rx line-start (group (** 14 15 " ")) (regexp bullet-regexp)) "\\1** ")
+       ))
+
+(defun sync-bullets-by-indent ()
+  "Changes goal selectors.
+
+Use the function on a region with sub proves after tactic (such as
+split) is removed.
+
+Region example:
+
+  + idtac \"x\".
+    split.
+    * auto.
+    * auto.
+  + idtac \"y\".
+
+After:
+
+  - idtac \"x\".
+    split.
+    + auto.
+    + auto.
+  - idtac \"y\".
+
+"
+
+  (interactive)
+  (with-undo-amalgamate
+    (letrec (
+             (rs (region-beginning))
+             (re (region-end))
+             (point-line (line-number-at-pos (point)))
+             (cols (- (point) (line-beginning-position)))
+             (start (and (goto-char rs) (line-beginning-position)))
+             (start-line (line-number-at-pos start))
+             (lines-in-region (- (1+ (line-number-at-pos re)) start-line)))
+      (cl-loop for replace-pair in sync-bullet-regexes do
+               (goto-char start)
+               (forward-line lines-in-region)
+               (message "Replace %s => %s in region %d:%d"
+                        (car replace-pair) (cdr replace-pair) start (point))
+               (replace-regexp (car replace-pair) (cdr replace-pair) nil start (point)))
+      ;; fix indent
+      (goto-char start)
+      (forward-line lines-in-region)
+      (indent-region start (point))
+      ;; restore position
+      (goto-char start)
+      (forward-line (- point-line start-line))
+      (forward-char cols)
+      )
+    )
+  )
+
 (provide 'proof-general-bullet)
 
 ;;; proof-general-bullet.el ends here
