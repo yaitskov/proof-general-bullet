@@ -1,4 +1,4 @@
-# Proof-General Bullet
+# Bullet Proof-General
 
 This is a [proof general](https://github.com/ProofGeneral) extension
 which detects when the current subgoal, annotated with a bullet, is
