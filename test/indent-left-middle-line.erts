@@ -1,0 +1,19 @@
+Name: Lines 3-6 are affected
+
+=-=
+  split.
+  - unfold not.
+    intros.
+    inversion H.
+    + inversion H0.
+    + apply H0.
+  - reflexivity.
+=-=
+  split.
+  - unfold not.
+    intros.
+    inversion H.
+    - inversion H0.
+    - apply H0.
+  - reflexivity.
+=-=-=

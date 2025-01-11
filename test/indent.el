@@ -32,3 +32,26 @@
 
 (ert-deftest bpg-indent-right-erts ()
   (test-bpg-indent-erts "indent-right-whole-file.erts" 'bpg-indent-right))
+
+(ert-deftest bpg-indent-left-middle-erts ()
+    (ert-test-erts-file "indent-left-middle-line.erts"
+                      (lambda ()
+                        (forward-line 2)
+                        (cl-assert (= 3 (line-number-at-pos (point))))
+                        (push-mark)
+                        (forward-line 3)
+                        (cl-assert (= 6 (line-number-at-pos (point))))
+                        (bpg-indent-left)
+                        )))
+
+(ert-deftest bpg-indent-left-middle-point-at-beginning-region-erts ()
+    (ert-test-erts-file "indent-left-middle-line.erts"
+                      (lambda ()
+                        (forward-line 5)
+                        (right-char 6)
+                        (cl-assert (= 6 (line-number-at-pos (point))))
+                        (push-mark)
+                        (previous-line 3)
+                        (cl-assert (= 3 (line-number-at-pos (point))))
+                        (bpg-indent-left)
+                        )))

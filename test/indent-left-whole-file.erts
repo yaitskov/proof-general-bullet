@@ -1,0 +1,33 @@
+Name: Empty
+
+=-=
+=-=
+=-=-=
+
+Name: One line without bullet
+
+=-=
+  idtac "eeee".
+=-=
+  idtac "eeee".
+=-=-=
+
+Name: One line with bullet
+
+=-=
+  - idtac "eeee".
+=-=
+   idtac "eeee".
+=-=-=
+
+Name: Two bullets
+
+=-=
+  split.
+  - split.
+    + idtac "eeee".
+=-=
+  split.
+   split.
+    - idtac "eeee".
+=-=-=
