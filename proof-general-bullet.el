@@ -96,10 +96,13 @@
 ;; help to avoid looping when content of response buffer triggers correction
 (setq C-c_C-n-hit-counter 0)
 
+(defcustom bpg-delay-seconds 1
+  "Delay for reaction on content is *response* buffer callback. Hackish parameter.")
+
 (defun coq-auto-bullet-hook-binding ()
   ;; (mytrace "coq-auto-bullet-hook-binding")
   (run-at-time
-   0 nil
+   bpg-delay-seconds nil
    (lambda ()
      (let ((cnc (1- C-c_C-n-hit-counter)))
        ;; (mytrace "CNC %d" C-c_C-n-hit-counter)
