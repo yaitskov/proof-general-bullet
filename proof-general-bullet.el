@@ -99,19 +99,19 @@
 (defcustom bpg-delay-seconds 1
   "Delay for reaction on content is *response* buffer callback. Hackish parameter.")
 
+(defun coq-auto-bullet-sync-hook-binding (eval-next)
+  (let ((cnc (1- C-c_C-n-hit-counter)))
+    (if (<= 0 cnc)
+        (progn
+          (setq C-c_C-n-hit-counter 0)
+          (with-current-buffer proof-script-buffer
+            (handle-end-of-subproof eval-next)
+            )))))
+
 (defun coq-auto-bullet-hook-binding ()
-  ;; (mytrace "coq-auto-bullet-hook-binding")
   (run-at-time
    bpg-delay-seconds nil
-   (lambda ()
-     (let ((cnc (1- C-c_C-n-hit-counter)))
-       ;; (mytrace "CNC %d" C-c_C-n-hit-counter)
-       (if (<= 0 cnc)
-           (progn
-             (setq C-c_C-n-hit-counter 0)
-             (with-current-buffer proof-script-buffer
-               (handle-end-of-subproof 'proof-assert-next-command-interactive)
-               )))))))
+   (lambda () (coq-auto-bullet-sync-hook-binding 'proof-assert-next-command-interactive))))
 
 (advice-add
  'proof-assert-next-command-interactive

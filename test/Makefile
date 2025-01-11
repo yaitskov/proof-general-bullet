@@ -2,7 +2,7 @@ all-tests: $(patsubst %.el,%.elt,$(wildcard *.el))
 	echo OK: $^
 
 %.elt: %.el ../*.el ../src/*.el
-	emacs -batch -l ert --eval "(package-initialize)" -L ../src -l $< -f ert-run-tests-batch-and-exit
+	emacs -batch -l ert --eval "(package-initialize)" -L .. -L ../src -l $< -f ert-run-tests-batch-and-exit
 	touch $@
 
 clean:

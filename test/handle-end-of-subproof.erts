@@ -1,0 +1,10 @@
+Name: Insert bullet for next sibling subproof at the end of file
+
+=-=
+  split.
+  - auto.(* CURSOR HERE *)
+=-=
+  split.
+  - auto.
+  - 
+=-=-=
