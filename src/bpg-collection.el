@@ -23,14 +23,22 @@
 ;;
 
 ;;; Code:
-
-(defun hash-table-of-alist (al ht)
+(cl-defun hash-table-of-alist (al &optional (default-ht))
   "put all entries of alist into a hash table
 
 hash table is returned"
+  (let ((ht (or default-ht (make-hash-table :test 'equal))))
+    (mapc (lambda (e)
+            (puthash (car e) (cdr e) ht)
+            )
+          al)
+    ht))
 
-  (mapc (lambda (e) (puthash (car e) (cdr e) ht)) al)
-  ht)
+(defun alist-of-hash-table (ht)
+  "convert a hash table into alist"
+  (let ((al '()))
+    (maphash (lambda (k v) (setq al (cons (cons k v) al))) ht)
+    al))
 
 (provide 'bpg-collection)
 ;;; bgp-collection.el ends here
