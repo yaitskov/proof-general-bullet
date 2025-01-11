@@ -32,6 +32,8 @@
 ;;; Code:
 
 (require 'proof-general)
+(add-to-list 'load-path (format "%ssrc" (file-name-parent-directory load-true-file-name)))
+(require 'bpg-indent)
 
 (defun mytrace (fmt &rest args)
   (identity (list fmt args))) ;; (apply 'message fmt args))
