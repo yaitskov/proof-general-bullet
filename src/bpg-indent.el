@@ -67,12 +67,12 @@
 
 
 (defun bpg-indent-left ()
-  "walk through the region by line match line prefix"
+  "replace bullets in the region with siblings from the left (e.g. + => - and -- => *)"
   (interactive)
   (bpg-indent-region bpg-indent-left-map))
 
 (defun bpg-indent-right ()
-  "walk through the region by line match line prefix"
+  "replace bullets in the region with siblings from the right (e.g. - => + and * => --)"
   (interactive)
   (bpg-indent-region bpg-indent-right-map))
 
