@@ -1,8 +1,9 @@
-.PHONY: all-tests
-
-all-tests: *.elt
-	echo OK
+all-tests: $(patsubst %.el,%.elt,$(wildcard *.el))
+	echo OK: $^
 
 %.elt: %.el ../*.el ../src/*.el
-	emacs -batch -l ert -L ../src -l $< -f ert-run-tests-batch-and-exit
+	emacs -batch -l ert --eval "(package-initialize)" -L ../src -l $< -f ert-run-tests-batch-and-exit
 	touch $@
+
+clean:
+	rm -rf *.elt
