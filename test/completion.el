@@ -55,3 +55,14 @@
                          (lambda () (handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
                          "")
                         )))
+
+(ert-deftest handle-response-buffer-insert-qed ()
+  (ert-test-erts-file "erts/handle-end-of-subproof/insert-qed.erts"
+                      (lambda ()
+                        (search-forward "(* CURSOR HERE *)")
+                        (search-backward "(")
+                        (kill-line)
+                        (with-response-buffer
+                         (lambda () (handle-response-buffer-content (lambda () nil)))
+                         "No more goals.")
+                        )))

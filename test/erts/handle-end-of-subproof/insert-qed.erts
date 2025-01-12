@@ -1,0 +1,8 @@
+Name: Insert Qed.
+
+=-=
+  auto.(* CURSOR HERE *)
+=-=
+  auto.
+Qed.
+=-=-=
