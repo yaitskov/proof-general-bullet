@@ -1,0 +1,11 @@
+Name: Insert bullet after last subproof at the end of file
+
+=-=
+  split.
+  - auto.
+  - auto.(* CURSOR HERE *)
+=-=
+  split.
+  - auto.
+  - auto.
+=-=-=
