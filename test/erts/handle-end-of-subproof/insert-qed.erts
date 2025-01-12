@@ -6,3 +6,33 @@ Name: Insert Qed.
   auto.
 Qed.
 =-=-=
+Name: Insert Qed Empty Line.
+
+=-=
+  auto.
+(* CURSOR HERE *)
+=-=
+  auto.
+Qed.
+=-=-=
+Name: Insert Qed Empty Line with \n.
+
+=-=
+  auto.
+(* CURSOR HERE *)
+Lemma
+=-=
+  auto.
+Qed.
+Lemma
+=-=-=
+Name: Insert Qed 2.
+
+=-=
+  auto.
+(* CURSOR HERE *)Lemma
+=-=
+  auto.
+Qed.
+Lemma
+=-=-=

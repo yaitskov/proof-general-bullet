@@ -61,7 +61,7 @@
                       (lambda ()
                         (search-forward "(* CURSOR HERE *)")
                         (search-backward "(")
-                        (kill-line)
+                        (kill-sexp)
                         (with-response-buffer
                          (lambda () (handle-response-buffer-content (lambda () nil)))
                          "No more goals.")
