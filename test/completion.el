@@ -31,27 +31,27 @@
  Focus next goal with bullet ??.")))
   )
 
-(ert-deftest handle-end-of-subproof-insert-bullet-for-next-sibling ()
+(ert-deftest handle-response-buffer-insert-bullet-for-next-sibling ()
   (ert-test-erts-file "erts/handle-end-of-subproof/insert-bullet-for-next-sibling-eof.erts"
                       (lambda ()
                         (search-forward "(* CURSOR HERE *)")
                         (search-backward "(")
                         (kill-line)
                         (with-response-buffer
-                         (lambda () (handle-end-of-subproof (apply-partially 'move-end-of-line 1)))
+                         (lambda () (handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
                          "This subproof is complete, but there are some unfocused goals.
  Focus next goal with bullet -.
 "
                          )
                         )))
 
-(ert-deftest handle-end-of-subproof-dont-insert ()
+(ert-deftest handle-response-buffer-dont-insert ()
   (ert-test-erts-file "erts/handle-end-of-subproof/dont-insert-bullet-after-last-subproof-eof.erts"
                       (lambda ()
                         (search-forward "(* CURSOR HERE *)")
                         (search-backward "(")
                         (kill-line)
                         (with-response-buffer
-                         (lambda () (handle-end-of-subproof (apply-partially 'move-end-of-line 1)))
+                         (lambda () (handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
                          "")
                         )))

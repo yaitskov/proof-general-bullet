@@ -66,32 +66,86 @@
      (re-search-backward (rx line-start (group (1+ " ")) (literal b) " ") nil t)
      (match-string-no-properties 1))))
 
-(defun handle-end-of-subproof (eval-next)
-  (let ((next-bullet (extract-bullet (get-response-buffer-message))))
-    (mytrace "next-bullet: [%s]" next-bullet)
+(defclass Solo ()
+  ((foo :initarg :foo))
+  "Solo class is a wrapper around some value.")
+
+(defclass ResponseBufferHandler () ()
+  "A base class for behaviors triggered by content of response buffer"
+  :abstract t)
+
+(cl-defmethod
+ handle-response-buffer ((o ResponseBufferHandler))
+ "expects current buffer contains Coq code related to
+ the message from response buffer"
+ (error "handle-response-buffer is not implemented"))
+
+(defclass InsertBulletIfMissing (ResponseBufferHandler)
+  ((bullet :initarg :bullet)
+   (eval-next-cb :initarg :eval-next-cb))
+  "")
+
+(cl-defmethod
+ handle-response-buffer ((o InsertBulletIfMissing))
+ (let ((next-bullet (slot-value o :bullet)))
+   (mytrace "next-bullet: [%s]" next-bullet)
+   (when next-bullet
+     (let ((following-bullet (find-next-bullet)))
+       (mytrace "following-bullet: [%s]" following-bullet)
+       (if (and following-bullet (equal following-bullet next-bullet))
+           (progn
+             (funcall (slot-value o :eval-next-cb))
+             (when (bolp) (left-char 1))
+             (when (not (= (char-from-name "SPACE") (preceding-char)))
+               (insert " ")))
+         (let ((next-bullet-indent (find-bullet-indent next-bullet)))
+           (when next-bullet-indent
+             (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
+             (when (not (bolp))
+               (insert "\n"))
+             (insert next-bullet-indent next-bullet " ")
+             (when (not (eolp))
+               (insert "\n") (left-char 1))
+             (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
+             (funcall (slot-value o :eval-next-cb))
+             (when (bolp)
+               (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
+               (left-char 1))))
+         )
+       )
+     )
+   )
+ )
+
+(defclass ResponseBufferClassifier () ()
+  "create instance of `ResponseBufferHandler'"
+  :abstract t)
+(cl-defmethod try-to-classify ((o ResponseBufferClassifier)
+                            response-buffer-content eval-next-cb)
+           "return an applicable handler or nil"
+           (error "try-to-classify is not implemented"))
+
+(defclass SubproofRemains (ResponseBufferClassifier) () "See `InsertBulletIfMissing'")
+
+(cl-defmethod try-to-classify
+  ((o SubproofRemains) response-buffer-content eval-next-cb)
+  "doc string here"
+  (let ((next-bullet (extract-bullet response-buffer-content)))
     (when next-bullet
-      (let ((following-bullet (find-next-bullet)))
-        (mytrace "following-bullet: [%s]" following-bullet)
-        (if (and following-bullet (equal following-bullet next-bullet))
-            (progn
-              (funcall eval-next)
-              (when (bolp) (left-char 1))
-              (when (not (= (char-from-name "SPACE") (preceding-char)))
-                (insert " ")))
-          (let ((next-bullet-indent (find-bullet-indent next-bullet)))
-            (when next-bullet-indent
-              (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
-              (when (not (bolp))
-                (insert "\n"))
-              (insert next-bullet-indent next-bullet " ")
-              (when (not (eolp))
-                (insert "\n") (left-char 1))
-              (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-              (funcall eval-next)
-              (when (bolp)
-                (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-                (left-char 1))))
-          )))))
+      (InsertBulletIfMissing :bullet next-bullet
+                             :eval-next-cb eval-next-cb))))
+
+(defvar response-buffer-classifiers
+  (list (SubproofRemains)))
+
+(defun handle-response-buffer-content (eval-next-cb)
+  (let ((rbm (get-response-buffer-message)))
+    (cl-loop for m in response-buffer-classifiers do
+             (let ((h (try-to-classify m rbm eval-next-cb)))
+               (when h
+                 (handle-response-buffer h)
+                 (cl-return) ;; break loop
+                 )))))
 
 ;; help to avoid looping when content of response buffer triggers correction
 (setq C-c_C-n-hit-counter 0)
@@ -105,7 +159,7 @@
         (progn
           (setq C-c_C-n-hit-counter 0)
           (with-current-buffer proof-script-buffer
-            (handle-end-of-subproof eval-next)
+            (handle-response-buffer-content eval-next)
             )))))
 
 (defun coq-auto-bullet-hook-binding ()
