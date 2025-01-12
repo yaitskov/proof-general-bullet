@@ -32,111 +32,18 @@
 ;;; Code:
 
 (require 'proof-general)
+;; Make submodules loadable:
 (add-to-list 'load-path (format "%ssrc" (file-name-parent-directory load-true-file-name)))
 (require 'bpg-indent)
-
-(defun mytrace (fmt &rest args)
-  (identity (list fmt args))) ;; (apply 'message fmt args))
+(require 'bpg-bullet)
+(require 'bpg-qed)
 
 (defun get-response-buffer-message ()
   (with-current-buffer proof-response-buffer
     (buffer-string)))
 
-(defun extract-bullet (msg)
-  (and
-   (string-match
-    (concat
-     "^This subproof is complete, but there are some unfocused goals[.]\n"
-     " +Focus next goal with bullet \\([+*-]+\\)[.][ \n\t]*$")
-    msg)
-   (match-string 1 msg)))
-
-(defun find-next-bullet ()
-  (save-excursion
-    (skip-chars-forward " \t\n")
-    (when (not (eobp))
-      (move-beginning-of-line 1)
-      (and
-       (re-search-forward "^ *\\([^ \n]+\\)" (+ 88 (point)) t)
-       (match-string-no-properties 1)))))
-
-(defun find-bullet-indent (b)
-  (save-excursion
-    (and
-     (re-search-backward (rx line-start (group (1+ " ")) (literal b) " ") nil t)
-     (match-string-no-properties 1))))
-
-(defclass Solo ()
-  ((foo :initarg :foo))
-  "Solo class is a wrapper around some value.")
-
-(defclass ResponseBufferHandler () ()
-  "A base class for behaviors triggered by content of response buffer"
-  :abstract t)
-
-(cl-defmethod
- handle-response-buffer ((o ResponseBufferHandler))
- "expects current buffer contains Coq code related to
- the message from response buffer"
- (error "handle-response-buffer is not implemented"))
-
-(defclass InsertBulletIfMissing (ResponseBufferHandler)
-  ((bullet :initarg :bullet)
-   (eval-next-cb :initarg :eval-next-cb))
-  "")
-
-(cl-defmethod
- handle-response-buffer ((o InsertBulletIfMissing))
- (let ((next-bullet (slot-value o :bullet)))
-   (mytrace "next-bullet: [%s]" next-bullet)
-   (when next-bullet
-     (let ((following-bullet (find-next-bullet)))
-       (mytrace "following-bullet: [%s]" following-bullet)
-       (if (and following-bullet (equal following-bullet next-bullet))
-           (progn
-             (funcall (slot-value o :eval-next-cb))
-             (when (bolp) (left-char 1))
-             (when (not (= (char-from-name "SPACE") (preceding-char)))
-               (insert " ")))
-         (let ((next-bullet-indent (find-bullet-indent next-bullet)))
-           (when next-bullet-indent
-             (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
-             (when (not (bolp))
-               (insert "\n"))
-             (insert next-bullet-indent next-bullet " ")
-             (when (not (eolp))
-               (insert "\n") (left-char 1))
-             (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-             (funcall (slot-value o :eval-next-cb))
-             (when (bolp)
-               (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-               (left-char 1))))
-         )
-       )
-     )
-   )
- )
-
-(defclass ResponseBufferClassifier () ()
-  "create instance of `ResponseBufferHandler'"
-  :abstract t)
-(cl-defmethod try-to-classify ((o ResponseBufferClassifier)
-                            response-buffer-content eval-next-cb)
-           "return an applicable handler or nil"
-           (error "try-to-classify is not implemented"))
-
-(defclass SubproofRemains (ResponseBufferClassifier) () "See `InsertBulletIfMissing'")
-
-(cl-defmethod try-to-classify
-  ((o SubproofRemains) response-buffer-content eval-next-cb)
-  "doc string here"
-  (let ((next-bullet (extract-bullet response-buffer-content)))
-    (when next-bullet
-      (InsertBulletIfMissing :bullet next-bullet
-                             :eval-next-cb eval-next-cb))))
-
 (defvar response-buffer-classifiers
-  (list (SubproofRemains)))
+  (list (SubproofRemains) (QedDetector)))
 
 (defun handle-response-buffer-content (eval-next-cb)
   (let ((rbm (get-response-buffer-message)))
