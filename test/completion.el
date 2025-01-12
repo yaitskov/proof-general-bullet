@@ -32,7 +32,7 @@
   )
 
 (ert-deftest handle-end-of-subproof-erts ()
-  (ert-test-erts-file "handle-end-of-subproof.erts"
+  (ert-test-erts-file "erts/handle-end-of-subproof/insert-bullet-for-next-sibling-eof.erts"
                       (lambda ()
                         (search-forward "(* CURSOR HERE *)")
                         (search-backward "(")
