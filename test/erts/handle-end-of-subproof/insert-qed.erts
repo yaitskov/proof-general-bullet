@@ -36,3 +36,12 @@ Name: Insert Qed 2.
 Qed.
 Lemma
 =-=-=
+Name: Do not insert Qed, because it is already there
+
+=-=
+  auto.(* CURSOR HERE *)
+Qed.
+=-=
+  auto.
+Qed.
+=-=-=
