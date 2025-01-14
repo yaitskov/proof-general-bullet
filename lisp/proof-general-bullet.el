@@ -33,6 +33,7 @@
 ;; - Insert Qed if lemma is proved.
 ;; - Functions `bpg-indent-right' and `bpg-indent-right' help to increase/decrease
 ;;   nesting of subproves.
+;; - `bpg-sync-bullets-by-indent' corrects bullets based on line indentation
 
 ;;; Code:
 
@@ -62,9 +63,6 @@
 ;; help to avoid looping when content of response buffer triggers correction
 (defvar C-c_C-n-hit-counter 0)
 
-(defcustom bpg-delay-seconds 1
-  "Delay for reaction on content is *response* buffer callback. Hackish parameter.")
-
 (defun coq-auto-bullet-sync-hook-binding (eval-next)
   (let ((cnc (1- C-c_C-n-hit-counter)))
     (when (<= 0 cnc)
@@ -75,9 +73,14 @@
             )))))
 
 (defun coq-auto-bullet-hook-binding ()
-  (run-at-time
-   bpg-delay-seconds nil
-   (lambda () (coq-auto-bullet-sync-hook-binding 'proof-assert-next-command-interactive))))
+  (cl-flet
+      ((is-goals-empty ()
+         (with-current-buffer proof-goals-buffer (= (point-min) (point-max))))
+       (is-response-empty ()
+         (with-current-buffer proof-response-buffer (= (point-min) (point-max)))))
+    (if (and (is-response-empty) (is-goals-empty))
+        (mytrace "response and goal buffers are empty - skip hook")
+        (coq-auto-bullet-sync-hook-binding 'proof-assert-next-command-interactive))))
 
 ;; proof-assert-next-command-interactive is called in loop after C-c C-Enter
 (defun proof-assert-next-command-interactive-shortcut ()
@@ -92,10 +95,9 @@
 
 (add-hook 'coq-mode-hook
           (lambda ()
+            (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
             (define-key coq-mode-map [(control c) (control n)] 'proof-assert-next-command-interactive-shortcut)
             (define-key coq-mode-map [(control c) (control return)] 'proof-goto-point-interactive)))
-
-(add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
 
 
 (provide 'proof-general-bullet)

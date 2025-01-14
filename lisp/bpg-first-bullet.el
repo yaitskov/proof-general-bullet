@@ -97,6 +97,7 @@
       ;; Example of first line in *goals* buffer relevant to this behavior
       ;; 2 goals (ID 13)
 
+      (mytrace "goals buffer is empty ?: %s" (buffer-substring-no-properties (point-min) (point-max)))
       (when (looking-at "[2-9][0-9]* goals [(]ID [0-9]+[)]")
         (InsertFirstBulletIfMissing :eval-next-cb eval-next-cb)))))
 
