@@ -61,3 +61,12 @@ Name: Merge Dash
   split. 
   -
 =-=-=
+Name: Insert Dash Beginnign of Line
+
+=-=
+  split.
+(* CURSOR HERE *)
+=-=
+  split.
+  - 
+=-=-=
