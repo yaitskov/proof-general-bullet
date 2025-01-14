@@ -104,3 +104,17 @@
                             ""))
                          "2 goals (ID 13)\n\ngoal 2 ..."
                          ))))
+
+(ert-deftest dont-insert-first-bullet-erts ()
+  (ert-test-erts-file "erts/dont-insert-first-bullet.erts"
+                      (lambda ()
+                        (search-forward "(* CURSOR HERE *)")
+                        (search-backward "(")
+                        (kill-sexp)
+                        (with-goals-buffer
+                         (lambda ()
+                           (with-response-buffer
+                            (lambda () (handle-response-buffer-content (lambda () nil)))
+                            ""))
+                         "ok"
+                         ))))
