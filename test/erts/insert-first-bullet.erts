@@ -1,0 +1,54 @@
+Name: Insert Dash
+
+=-=
+  split.(* CURSOR HERE *)
+=-=
+  split.
+  - 
+=-=-=
+Name: Insert Plus
+
+=-=
+  split.
+  - split.(* CURSOR HERE *)
+=-=
+  split.
+  - split.
+    + 
+=-=-=
+Name: Zero indent
+
+=-=
+Proof.
+  intros. split.(* CURSOR HERE *)
+=-=
+Proof.
+  intros. split.
+  - 
+=-=-=
+Name: Ignore sibling bullets
+
+=-=
+Proof.
+  intros.
+  split.
+  { split.
+    - auto.
+    - split.
+      + auto.
+      + auto.
+  }
+  { split.(* CURSOR HERE *)
+=-=
+Proof.
+  intros.
+  split.
+  { split.
+    - auto.
+    - split.
+      + auto.
+      + auto.
+  }
+  { split.
+    - 
+=-=-=

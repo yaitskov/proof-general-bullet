@@ -62,7 +62,6 @@
    )
  )
 
-
 (defclass SubproofRemains (ResponseBufferClassifier) () "See `InsertBulletIfMissing'")
 
 (cl-defmethod try-to-classify

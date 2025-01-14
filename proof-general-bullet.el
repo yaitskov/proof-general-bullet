@@ -37,13 +37,14 @@
 (require 'bpg-indent)
 (require 'bpg-bullet)
 (require 'bpg-qed)
+(require 'bpg-first-bullet)
 
 (defun get-response-buffer-message ()
   (with-current-buffer proof-response-buffer
     (buffer-string)))
 
 (defvar response-buffer-classifiers
-  (list (SubproofRemains) (QedDetector)))
+  (list (SubproofRemains) (QedDetector) (SubGoalsDetector)))
 
 (defun handle-response-buffer-content (eval-next-cb)
   (let ((rbm (get-response-buffer-message)))
@@ -57,7 +58,7 @@
 ;; help to avoid looping when content of response buffer triggers correction
 (setq C-c_C-n-hit-counter 0)
 
-(defcustom bpg-delay-seconds 1
+(defcustom bpg-delay-seconds 3
   "Delay for reaction on content is *response* buffer callback. Hackish parameter.")
 
 (defun coq-auto-bullet-sync-hook-binding (eval-next)

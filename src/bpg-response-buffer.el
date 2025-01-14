@@ -1,7 +1,8 @@
 ;;; bgp-response-buffer.el --- abstract classes                               -*- lexical-binding: t; -*-
 
 (defun mytrace (fmt &rest args)
-  (identity (list fmt args))) ;; (apply 'message fmt args))
+  ;; (identity (list fmt args)))
+  (apply 'message fmt args))
 
 (defclass ResponseBufferHandler () ()
   "A base class for behaviors triggered by content of response buffer"
