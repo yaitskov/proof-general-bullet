@@ -32,8 +32,6 @@
 ;;; Code:
 
 (require 'proof-general)
-;; Make submodules loadable:
-(add-to-list 'load-path (format "%ssrc" (file-name-parent-directory load-true-file-name)))
 (require 'bpg-indent)
 (require 'bpg-bullet)
 (require 'bpg-qed)
