@@ -15,8 +15,8 @@
 ;; If not, see <http://www.gnu.org/licenses/>.
 
 (defun mytrace (fmt &rest args)
-  ;; (identity (list fmt args)))
-  (apply 'message fmt args))
+  (identity (list fmt args)))
+  ;; (apply 'message fmt args))
 
 (defclass ResponseBufferHandler () ()
   "A base class for behaviors triggered by content of response buffer"
