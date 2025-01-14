@@ -7,8 +7,6 @@
 ;; Keywords: proof assistant, PG, proof-general, Coq, Rocq, goal selector, autocomplete
 ;; Package-Requires ((emacs "29.1") (proof-general "20241126.32"))
 
-;; This file is NOT part of GNU Emacs.
-
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or

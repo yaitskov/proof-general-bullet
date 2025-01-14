@@ -1,9 +1,4 @@
-;;; bgp-collection.el --- collection                 -*- lexical-binding: t; -*-
-
-;; Copyright (C) 2025  dan
-
-;; Author: dan <dan@diehard>
-;; Keywords: data
+;;; bgp-collection.el --- hashtable conversions                 -*- lexical-binding: t; -*-
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,8 +14,6 @@
 ;; along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 ;;; Commentary:
-
-;;
 
 ;;; Code:
 (cl-defun hash-table-of-alist (al &optional (default-ht))
