@@ -52,3 +52,12 @@ Proof.
   { split.
     - 
 =-=-=
+Name: Merge Dash
+
+=-=
+  split.(* CURSOR HERE *)
+  -
+=-=
+  split. 
+  -
+=-=-=
