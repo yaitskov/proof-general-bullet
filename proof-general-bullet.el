@@ -56,14 +56,14 @@
                  )))))
 
 ;; help to avoid looping when content of response buffer triggers correction
-(setq C-c_C-n-hit-counter 0)
+(defvar C-c_C-n-hit-counter 0)
 
-(defcustom bpg-delay-seconds 3
+(defcustom bpg-delay-seconds 1
   "Delay for reaction on content is *response* buffer callback. Hackish parameter.")
 
 (defun coq-auto-bullet-sync-hook-binding (eval-next)
   (let ((cnc (1- C-c_C-n-hit-counter)))
-    (if (<= 0 cnc)
+    (when (<= 0 cnc)
         (progn
           (setq C-c_C-n-hit-counter 0)
           (with-current-buffer proof-script-buffer
@@ -75,12 +75,21 @@
    bpg-delay-seconds nil
    (lambda () (coq-auto-bullet-sync-hook-binding 'proof-assert-next-command-interactive))))
 
-(advice-add
- 'proof-assert-next-command-interactive
- :before
- (lambda ()
-   ;; (mytrace "C-c C-n is pressed: %d" C-c_C-n-hit-counter)
-   (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))))
+;; proof-assert-next-command-interactive is called in loop after C-c C-Enter
+(defun proof-assert-next-command-interactive-shortcut ()
+  (interactive)
+  (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
+  (proof-assert-next-command-interactive))
+
+(defun proof-goto-point-interactive (&optional RAW)
+  (interactive)
+  (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
+  (proof-goto-point RAW))
+
+(add-hook 'coq-mode-hook
+          (lambda ()
+            (define-key coq-mode-map [(control c) (control n)] 'proof-assert-next-command-interactive-shortcut)
+            (define-key coq-mode-map [(control c) (control return)] 'proof-goto-point-interactive)))
 
 (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
 

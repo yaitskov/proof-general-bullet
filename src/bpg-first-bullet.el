@@ -17,31 +17,31 @@
                     2))))
 
 (cl-defmethod
- handle-response-buffer ((o InsertFirstBulletIfMissing))
- (let ((bullet (or (gethash (find-closest-parent-bullet) bpg-indent-right-map)
-                   (car bpg-bullet-levels)))
-       (following-bullet (find-next-bullet)))
-   (mytrace "following-bullet: [%s]" following-bullet)
-   (if (and following-bullet (equal following-bullet bullet))
-       (progn
-         (funcall (slot-value o :eval-next-cb))
-         (when (bolp) (left-char 1))
-         (when (not (= (char-from-name "SPACE") (preceding-char)))
-           (insert " ")))
-     (let ((bullet-indent (current-line-indent)))
-         (when (not (bolp))
-           (insert "\n"))
-         (insert bullet-indent bullet " ")
-         (when (not (eolp))
-           (insert "\n") (left-char 1))
-         (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-         (funcall (slot-value o :eval-next-cb))
-         (when (bolp)
-           (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-           (left-char 1)))
-     )
-   )
- )
+  handle-response-buffer ((o InsertFirstBulletIfMissing))
+  (let ((bullet (or (gethash (find-closest-parent-bullet) bpg-indent-right-map)
+                    (car bpg-bullet-levels)))
+        (following-bullet (find-next-bullet)))
+    (mytrace "following-bullet: [%s]" following-bullet)
+    (if (and following-bullet (equal following-bullet bullet))
+        (progn
+          (funcall (slot-value o :eval-next-cb))
+          (when (bolp) (left-char 1))
+          (when (not (= (char-from-name "SPACE") (preceding-char)))
+            (insert " ")))
+      (let ((bullet-indent (current-line-indent)))
+        (when (not (bolp))
+          (insert "\n"))
+        (insert bullet-indent bullet " ")
+        (when (not (eolp))
+          (insert "\n") (left-char 1))
+        (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
+        (funcall (slot-value o :eval-next-cb))
+        (when (bolp)
+          (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
+          (left-char 1)))
+      )
+    )
+  )
 
 (defun find-closest-parent-bullet ()
   "returns closest parent bullet or nin"
@@ -76,16 +76,14 @@
 (cl-defmethod try-to-classify
   ((o SubGoalsDetector) response-buffer-content eval-next-cb)
   "doc string here"
-  (when (equal "" response-buffer-content)
-    (with-current-buffer proof-goals-buffer
-      (save-excursion
-        (goto-char (point-min))
-        ;; Example of first line in *goals* buffer relevant to this behavior
-        ;; 2 goals (ID 13)
+  (with-current-buffer proof-goals-buffer
+    (save-excursion
+      (goto-char (point-min))
+      ;; Example of first line in *goals* buffer relevant to this behavior
+      ;; 2 goals (ID 13)
 
-        (when (re-search-forward "^[0-9]+ goals [(]ID [0-9]+[)]" (+ 22 (point)) t)
-          (mytrace "use InsertFirstBulletIfMissing")
-          (InsertFirstBulletIfMissing :eval-next-cb eval-next-cb))))))
+      (when (looking-at "[2-9][0-9]* goals [(]ID [0-9]+[)]")
+        (InsertFirstBulletIfMissing :eval-next-cb eval-next-cb)))))
 
 (provide 'bpg-first-bullet)
 ;;; bpg-first-bullet.el ends here
