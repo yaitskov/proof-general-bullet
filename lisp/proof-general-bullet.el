@@ -1,19 +1,20 @@
-;;; proof-general-bullet.el --- PG Coq auto bullet  -*- lexical-binding: t -*-
+;;; proof-general-bullet.el --- PG Coq bullet automation  -*- lexical-binding: t -*-
 
 ;; Author: Daniil Iaitskov <dyaitskov@gmail.com>
+;; Maintainer: Daniil Iaitskov <dyaitskov@gmail.com>
 ;; URL: https://github.com/yaitskov/proof-general-bullet
-;; Version: 0.0.1
-;; Keywords: proof assisnat, PG, proof-general, Coq, Rocq
-;; Package-Requires ((emacs "27.5"))
+;; Version: v0.0.1
+;; Keywords: proof assistant, PG, proof-general, Coq, Rocq, goal selector, autocomplete
+;; Package-Requires ((emacs "27.5") (proof-general "20241126.32"))
 
 ;; This file is NOT part of GNU Emacs.
 
-;; proof-general-bullet.el is free software: you can redistribute it and/or modify
+;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
 
-;; proof-general-bullet.el is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -24,10 +25,16 @@
 
 ;;; Commentary:
 
-;; This is a proof general extension which detects when the current
-;; subgoal, annotated with a bullet, is proved (after C-c C-n) and
-;; automatically inserts a proper bullet for a next sibling subgoal or
-;; for a sibling of the goal.
+;; This is a proof general (https://proofgeneral.github.io/) extension
+;; which automates handling bullet (aka goal selectors).
+
+
+;; Use cases:
+;; - Insert a bullet after a tactic (such as split, induction etc) generating subgoals.
+;; - Insert a bullet after current subgoal is proved but there is a sibling one.
+;; - Insert Qed if lemma is proved.
+;; - Functions `bpg-indent-right' and `bpg-indent-right' help to increase/decrease
+;;   nesting of subproves.
 
 ;;; Code:
 
