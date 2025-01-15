@@ -1,4 +1,4 @@
-;;; bgp-indent.el --- rewrite bullets to increase nesting level                -*- lexical-binding: t; -*-
+;;; bpg-indent.el --- rewrite bullets to increase nesting level                -*- lexical-binding: t; -*-
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -14,30 +14,41 @@
 ;; along with request.el.
 ;; If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+
+;;; Code:
+
 (require 'bpg-collection)
 
 (cl-defun gen-rewrite-rules (abc n &optional (origin ()))
-  " generate sequence: '(- + -- ++ ...) from alphabet '(- +)"
+  "Generate a sequence of length N from alphabet ABC.
+ABC is a list of bullets.
+If it is a b c then the result is a sequence of a b c aa bb cc aaa bbb ccc ..."
   (if (> n 0)
       (gen-rewrite-rules abc (1- n)
                          (cons abc (mapcar (lambda (l) (seq-mapn 'concat abc l)) origin)))
     origin))
 
 (defun gen-bullet-indent-alist (bullet-levels shift-fn)
+  "Return a hash table with keys from BULLET-LEVELS and values form BULLET-LEVELS too but values are shifted with SHIFT-FN."
   (hash-table-of-alist
    (seq-mapn 'cons bullet-levels (funcall shift-fn bullet-levels))))
 
 (defun gen-bullet-indent-right-alist (bullet-levels)
-  "hash table mapping:  - => +; * => --  ; ..."
+  "Generate hash table mapping for bullets a level higher.
+- => +; * => --  ; ...
+BULLET-LEVELS is a list of ordered bullets."
   (gen-bullet-indent-alist bullet-levels 'cdr))
 
 (defun gen-bullet-indent-left-alist (bullet-levels)
-  "hash table mapping:  - => "" ; + => - ; -- => *  ; ..."
+  "Generate hash table mapping for bullets a level lower.
+- => \"\" ; + => - ; -- => * ; ...
+BULLET-LEVELS is a list of ordered bullets."
   (gen-bullet-indent-alist
    bullet-levels
    (apply-partially 'cons "")))
 
-(defcustom bpg-bullet-abc "-+*" "bullet characters in the order")
+(defcustom bpg-bullet-abc "-+*" "Bullet characters in the order.")
 
 (defvar bpg-bullet-levels (apply 'append
                                  (gen-rewrite-rules
@@ -48,6 +59,7 @@
 (defvar bpg-indent-right-map (gen-bullet-indent-right-alist bpg-bullet-levels))
 
 (defun bpg-indent-region (bullet-map)
+  "Rewrite bullets in the region according the the BULLET-MAP."
   (with-undo-amalgamate
     (save-excursion
       (letrec ((start-line (line-number-at-pos (region-beginning)))
@@ -82,14 +94,14 @@
 
 
 (defun bpg-indent-left ()
-  "replace bullets in the region with siblings from the left (e.g. + => - and -- => *)"
+  "Replace bullets in the region with siblings from the left (e.g. + => - and -- => *)."
   (interactive)
   (bpg-indent-region bpg-indent-left-map))
 
 (defun bpg-indent-right ()
-  "replace bullets in the region with siblings from the right (e.g. - => + and * => --)"
+  "Replace bullets in the region with siblings from the right (e.g. - => + and * => --)."
   (interactive)
   (bpg-indent-region bpg-indent-right-map))
 
 (provide 'bpg-indent)
-;;; bgp-indent.el ends here
+;;; bpg-indent.el ends here

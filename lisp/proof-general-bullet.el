@@ -46,6 +46,7 @@
 (require 'bpg-response-buffer)
 
 (defun get-response-buffer-message ()
+  "Return content of active Coq buffer."
   (with-current-buffer proof-response-buffer
     (buffer-string)))
 
@@ -53,6 +54,8 @@
   (list (SubproofRemains) (QedDetector) (SubGoalsDetector)))
 
 (defun handle-response-buffer-content (eval-next-cb)
+  "Do autocompletion if neede to an active Coq buffer.
+EVAL-NEXT-CB eval tactic."
   (let ((rbm (get-response-buffer-message)))
     (cl-loop for m in response-buffer-classifiers do
              (let ((h (try-to-classify m rbm eval-next-cb)))
@@ -64,16 +67,8 @@
 ;; help to avoid looping when content of response buffer triggers correction
 (defvar C-c_C-n-hit-counter 0)
 
-(defun coq-auto-bullet-sync-hook-binding (eval-next)
-  (let ((cnc (1- C-c_C-n-hit-counter)))
-    (when (<= 0 cnc)
-        (progn
-          (setq C-c_C-n-hit-counter 0)
-          (with-current-buffer proof-script-buffer
-            (handle-response-buffer-content eval-next)
-            )))))
-
 (defun coq-auto-bullet-hook-binding ()
+  "Hook behavior for processing Coq response and goals buffer states."
   (cl-flet
       ((is-goals-empty ()
          (with-current-buffer proof-goals-buffer (= (point-min) (point-max))))
@@ -81,15 +76,23 @@
          (with-current-buffer proof-response-buffer (= (point-min) (point-max)))))
     (if (and (is-response-empty) (is-goals-empty))
         (mytrace "response and goal buffers are empty - skip hook")
-        (coq-auto-bullet-sync-hook-binding 'proof-assert-next-command-interactive))))
+        (let ((cnc (1- C-c_C-n-hit-counter)))
+    (when (<= 0 cnc)
+        (progn
+          (setq C-c_C-n-hit-counter 0)
+          (with-current-buffer proof-script-buffer
+            (handle-response-buffer-content 'proof-assert-next-command-interactive)
+            )))))))
 
-;; proof-assert-next-command-interactive is called in loop after C-c C-Enter
 (defun proof-assert-next-command-interactive-shortcut ()
+  "Wrapper around `proof-assert-next-command-interactive' enables response hook."
   (interactive)
   (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
   (proof-assert-next-command-interactive))
 
 (defun proof-goto-point-interactive (&optional RAW)
+  "Wrapper around `proof-goto-point' enables response hook.
+RAW is fed to `proof-goto-point'."
   (interactive)
   (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
   (proof-goto-point RAW))

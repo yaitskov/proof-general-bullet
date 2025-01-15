@@ -14,6 +14,10 @@
 ;; along with request.el.
 ;; If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+;;; Code:
+
+(require 'eieio)
 (require 'bpg-response-buffer)
 (require 'bpg-bullet)
 (require 'bpg-indent)
@@ -24,6 +28,9 @@
   "")
 
 (defun current-line-indent ()
+  "Return a string of spaces.
+Its length is equal to distance between line start and
+first non space character excluding bullet if presented."
   (save-excursion
     (string-pad " "
                 (or (and (re-search-backward
@@ -33,6 +40,8 @@
 
 (cl-defmethod
   handle-response-buffer ((o InsertFirstBulletIfMissing))
+  "Insert a bullet if goals buffer has more than 1 subgoal.
+O this."
   (let ((bullet (or (gethash (find-closest-parent-bullet) bpg-indent-right-map)
                     (car bpg-bullet-levels)))
         (following-bullet (find-next-bullet)))
@@ -59,7 +68,7 @@
   )
 
 (defun find-closest-parent-bullet ()
-  "returns closest parent bullet or nin"
+  "Return closest parent bullet or nil."
   (let ((current-indent
          (save-excursion
            (or (and (re-search-backward (rx line-start (group (* " ")) (not " ")) nil t)
@@ -89,8 +98,9 @@
 (defclass SubGoalsDetector (ResponseBufferClassifier) ())
 
 (cl-defmethod try-to-classify
-  ((o SubGoalsDetector) response-buffer-content eval-next-cb)
-  "doc string here"
+  ((o SubGoalsDetector) _response-buffer-content eval-next-cb)
+  "Return new `InsertFirstBulletIfMissing' if *goals* buffer has subgoals.
+O this.  EVAL-NEXT-CB eval next tactic."
   (with-current-buffer proof-goals-buffer
     (save-excursion
       (goto-char (point-min))

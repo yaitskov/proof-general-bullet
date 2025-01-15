@@ -1,4 +1,4 @@
-;;; bgp-bullet.el --- rewrite bullets to increase nesting level                -*- lexical-binding: t; -*-
+;;; bpg-bullet.el --- rewrite bullets to increase nesting level                -*- lexical-binding: t; -*-
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -13,6 +13,8 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with request.el.
 ;; If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
 
 (require 'bpg-response-buffer)
 
@@ -46,7 +48,8 @@
 "")
 
 (cl-defmethod
- handle-response-buffer ((o InsertBulletIfMissing))
+  handle-response-buffer ((o InsertBulletIfMissing))
+  "O this."
  (let ((next-bullet (slot-value o :bullet)))
    (mytrace "next-bullet: [%s]" next-bullet)
    (when next-bullet
@@ -81,11 +84,13 @@
 
 (cl-defmethod try-to-classify
   ((o SubproofRemains) response-buffer-content eval-next-cb)
-  "doc string here"
+  "O this.
+RESPONSE-BUFFER-CONTENT.
+EVAL-NEXT-CB callback."
   (let ((next-bullet (extract-bullet response-buffer-content)))
     (when next-bullet
       (InsertBulletIfMissing :bullet next-bullet
                              :eval-next-cb eval-next-cb))))
 
 (provide 'bpg-bullet)
-;;; bgp-bullet.el ends here
+;;; bpg-bullet.el ends here

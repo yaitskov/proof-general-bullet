@@ -1,4 +1,4 @@
-;;; bgp-qed.el --- insert Qed at the end of lemma proof                -*- lexical-binding: t; -*-
+;;; bpg-qed.el --- insert Qed at the end of lemma proof                -*- lexical-binding: t; -*-
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -11,12 +11,18 @@
 ;; GNU General Public License for more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with request.el.
+
 ;; If not, see <http://www.gnu.org/licenses/>.
 
+;;; Commentary:
+;;; Code:
+
 (require 'bpg-response-buffer)
+(require 'eieio)
+
 
 (defun is-qed-next ()
+  "True if the point is before Qed."
   (save-excursion
     (skip-chars-forward " \t\n")
     ;; how to skip comments?
@@ -29,6 +35,8 @@
 
 (cl-defmethod
   handle-response-buffer ((o InsertQedIfMissing))
+  "Insert Qed if it is missing before point.
+O this."
   (if (is-qed-next)
       (funcall (slot-value o :eval-next-cb))
     (progn
@@ -47,10 +55,11 @@
 (defclass QedDetector (ResponseBufferClassifier) () "See `InsertQedIfMissing'")
 
 (cl-defmethod try-to-classify
-  ((o QedDetector) response-buffer-content eval-next-cb)
-  "doc string here"
+  ((_ QedDetector) response-buffer-content eval-next-cb)
+  "Return `InsertQedIfMissing' if no goals.
+RESPONSE-BUFFER-CONTENT EVAL-NEXT-CB"
     (when (string-match "^No more goals.[\n]*$" response-buffer-content)
       (InsertQedIfMissing :eval-next-cb eval-next-cb)))
 
 (provide 'bpg-qed)
-;;; bgp-qed.el ends here
+;;; bpg-qed.el ends here
