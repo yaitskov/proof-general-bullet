@@ -1,0 +1,15 @@
+Name: Replace plus with minus and star with plus
+
+=-=
+  + idtac \"x\".
+    split.
+    * auto.
+    * auto.
+  + idtac \"y\".
+=-=
+  - idtac \"x\".
+    split.
+    + auto.
+    * auto.
+  + idtac \"y\".
+=-=-=
