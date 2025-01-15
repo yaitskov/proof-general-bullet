@@ -98,9 +98,9 @@ O this."
 (defclass SubGoalsDetector (ResponseBufferClassifier) ())
 
 (cl-defmethod try-to-classify
-  ((o SubGoalsDetector) _response-buffer-content eval-next-cb)
+  ((_ SubGoalsDetector) _response-buffer-content eval-next-cb)
   "Return new `InsertFirstBulletIfMissing' if *goals* buffer has subgoals.
-O this.  EVAL-NEXT-CB eval next tactic."
+EVAL-NEXT-CB eval next tactic."
   (with-current-buffer proof-goals-buffer
     (save-excursion
       (goto-char (point-min))

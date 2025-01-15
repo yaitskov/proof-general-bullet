@@ -1,4 +1,4 @@
-;;; bpg-bullet.el --- rewrite bullets to increase nesting level                -*- lexical-binding: t; -*-
+;;; bpg-bullet.el --- insert consequent bullets                -*- lexical-binding: t; -*-
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -16,9 +16,13 @@
 
 ;;; Commentary:
 
+;;; Code:
+
+(require 'eieio)
 (require 'bpg-response-buffer)
 
 (defun extract-bullet (msg)
+  "True if MSG states that subproof is complete, but unfocused goals remain."
   (and
    (string-match
     (concat
@@ -28,6 +32,7 @@
    (match-string 1 msg)))
 
 (defun find-next-bullet ()
+  "Return indent as a space string if point preceds a line with a bullet."
   (save-excursion
     (skip-chars-forward " \t\n")
     (when (not (eobp))
@@ -37,6 +42,7 @@
        (match-string-no-properties 1)))))
 
 (defun find-bullet-indent (b)
+  "Find indent for bullets B."
   (save-excursion
     (and
      (re-search-backward (rx line-start (group (1+ " ")) (literal b) " ") nil t)
@@ -50,42 +56,41 @@
 (cl-defmethod
   handle-response-buffer ((o InsertBulletIfMissing))
   "O this."
- (let ((next-bullet (slot-value o :bullet)))
-   (mytrace "next-bullet: [%s]" next-bullet)
-   (when next-bullet
-     (let ((following-bullet (find-next-bullet)))
-       (mytrace "following-bullet: [%s]" following-bullet)
-       (if (and following-bullet (equal following-bullet next-bullet))
-           (progn
-             (funcall (slot-value o :eval-next-cb))
-             (when (bolp) (left-char 1))
-             (when (not (= (char-from-name "SPACE") (preceding-char)))
-               (insert " ")))
-         (let ((next-bullet-indent (find-bullet-indent next-bullet)))
-           (when next-bullet-indent
-             (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
-             (when (not (bolp))
-               (insert "\n"))
-             (insert next-bullet-indent next-bullet " ")
-             (when (not (eolp))
-               (insert "\n") (left-char 1))
-             (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-             (funcall (slot-value o :eval-next-cb))
-             (when (bolp)
-               (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-               (left-char 1))))
-         )
-       )
-     )
-   )
- )
+  (let ((next-bullet (slot-value o :bullet)))
+    (mytrace "next-bullet: [%s]" next-bullet)
+    (when next-bullet
+      (let ((following-bullet (find-next-bullet)))
+        (mytrace "following-bullet: [%s]" following-bullet)
+        (if (and following-bullet (equal following-bullet next-bullet))
+            (progn
+              (funcall (slot-value o :eval-next-cb))
+              (when (bolp) (left-char 1))
+              (when (not (= (char-from-name "SPACE") (preceding-char)))
+                (insert " ")))
+          (let ((next-bullet-indent (find-bullet-indent next-bullet)))
+            (when next-bullet-indent
+              (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
+              (when (not (bolp))
+                (insert "\n"))
+              (insert next-bullet-indent next-bullet " ")
+              (when (not (eolp))
+                (insert "\n") (left-char 1))
+              (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
+              (funcall (slot-value o :eval-next-cb))
+              (when (bolp)
+                (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
+                (left-char 1))))
+          )
+        )
+      )
+    )
+  )
 
 (defclass SubproofRemains (ResponseBufferClassifier) () "See `InsertBulletIfMissing'")
 
 (cl-defmethod try-to-classify
-  ((o SubproofRemains) response-buffer-content eval-next-cb)
-  "O this.
-RESPONSE-BUFFER-CONTENT.
+  ((_ SubproofRemains) response-buffer-content eval-next-cb)
+  "RESPONSE-BUFFER-CONTENT.
 EVAL-NEXT-CB callback."
   (let ((next-bullet (extract-bullet response-buffer-content)))
     (when next-bullet

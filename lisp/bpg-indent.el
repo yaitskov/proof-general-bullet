@@ -30,7 +30,9 @@ If it is a b c then the result is a sequence of a b c aa bb cc aaa bbb ccc ..."
     origin))
 
 (defun gen-bullet-indent-alist (bullet-levels shift-fn)
-  "Return a hash table with keys from BULLET-LEVELS and values form BULLET-LEVELS too but values are shifted with SHIFT-FN."
+  "Return a hash table with keys from BULLET-LEVELS and values.
+BULLET-LEVELS is keys.
+BULLET-LEVELS is also values, but shifted with SHIFT-FN."
   (hash-table-of-alist
    (seq-mapn 'cons bullet-levels (funcall shift-fn bullet-levels))))
 
@@ -48,7 +50,7 @@ BULLET-LEVELS is a list of ordered bullets."
    bullet-levels
    (apply-partially 'cons "")))
 
-(defcustom bpg-bullet-abc "-+*" "Bullet characters in the order.")
+(defcustom bpg-bullet-abc "-+*" "Bullet characters in the order." :type 'string)
 
 (defvar bpg-bullet-levels (apply 'append
                                  (gen-rewrite-rules
@@ -67,8 +69,6 @@ BULLET-LEVELS is a list of ordered bullets."
                 (- (1+ (line-number-at-pos (region-end)))
                    start-line)))
         (goto-char (region-beginning))
-        ;; (message "start line %d; lines in region: %d;" start-line lines-in-region)
-        (line-beginning-position)
         (while (> lines-in-region 0)
           (skip-chars-forward " ")
           (let ((bullet-start (point))
@@ -94,12 +94,14 @@ BULLET-LEVELS is a list of ordered bullets."
 
 
 (defun bpg-indent-left ()
-  "Replace bullets in the region with siblings from the left (e.g. + => - and -- => *)."
+  "Replace bullets in the region with siblings from the left.
+e.g. + => - and -- => *."
   (interactive)
   (bpg-indent-region bpg-indent-left-map))
 
 (defun bpg-indent-right ()
-  "Replace bullets in the region with siblings from the right (e.g. - => + and * => --)."
+  "Replace bullets in the region with siblings from the right.
+e.g. - => + and * => --."
   (interactive)
   (bpg-indent-region bpg-indent-right-map))
 
