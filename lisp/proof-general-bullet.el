@@ -43,6 +43,7 @@
 (require 'bpg-bullet-sync)
 (require 'bpg-qed)
 (require 'bpg-first-bullet)
+(require 'bpg-response-buffer)
 
 (defun get-response-buffer-message ()
   (with-current-buffer proof-response-buffer
