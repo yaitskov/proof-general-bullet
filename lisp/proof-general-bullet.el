@@ -5,7 +5,7 @@
 ;; URL: https://github.com/yaitskov/proof-general-bullet
 ;; Version: v0.0.1
 ;; Keywords: proof assistant, PG, proof-general, Coq, Rocq, goal selector, autocomplete
-;; Package-Requires ((emacs "29.1") (proof-general "20241126.32"))
+;; Package-Requires ((emacs "30.0") (proof-general "20241126.32"))
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
