@@ -97,12 +97,20 @@ RAW is fed to `proof-goto-point'."
   (setq bpg-C-c_C-n-hit-counter (1+ bpg-C-c_C-n-hit-counter))
   (proof-goto-point RAW))
 
-(add-hook
- 'coq-mode-hook
- (lambda ()
-   (add-hook 'proof-shell-handle-delayed-output-hook #'bpg-coq-auto-bullet-hook-binding 100)
-   (define-key (current-local-map) [(control c) (control n)] 'bpg-proof-assert-next-command-interactive)
-   (define-key (current-local-map) [(control c) (control return)] 'bpg-proof-goto-point)))
+(define-minor-mode bullet-proof-general-mode
+  "Bullet Proof General mode.
+This command toggles an auxiliary mode for \\[coq-mode] which
+inserts bullets (goal selectors) automatically."
+  :lighter "⃠⁍"
+  :keymap
+  (list
+   (cons (kbd "C-c C-n") 'bpg-proof-assert-next-command-interactive)
+   (cons (kbd "C-c C-<return>") 'bpg-proof-goto-point))
+
+  :after-hook
+    (add-hook 'proof-shell-handle-delayed-output-hook #'bpg-coq-auto-bullet-hook-binding 100))
+
+(add-hook 'coq-mode-hook 'bullet-proof-general-mode)
 
 (provide 'bullet-proof-general)
 ;;; bullet-proof-general.el ends here
