@@ -6,7 +6,7 @@ let
   e = pkgs.emacs30;
 in
 e.pkgs.trivialBuild {
-  pname = "proof-general-bullet";
+  pname = "bullet-proof-general";
   version = "0.0.1";
 
   src = ./.;

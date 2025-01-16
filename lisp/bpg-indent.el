@@ -20,50 +20,51 @@
 
 (require 'bpg-collection)
 
-(cl-defun gen-rewrite-rules (abc n &optional (origin ()))
+(cl-defun bpg-gen-rewrite-rules (abc n &optional (origin ()))
   "Generate a sequence of length N from alphabet ABC.
 ABC is a list of bullets.
 If it is a b c then the result is a sequence of a b c aa bb cc aaa bbb ccc ..."
   (if (> n 0)
-      (gen-rewrite-rules abc (1- n)
-                         (cons abc (mapcar (lambda (l) (seq-mapn 'concat abc l)) origin)))
+      (bpg-gen-rewrite-rules
+       abc (1- n)
+       (cons abc (mapcar (lambda (l) (seq-mapn 'concat abc l)) origin)))
     origin))
 
-(defun gen-bullet-indent-alist (bullet-levels shift-fn)
+(defun bpg-gen-bullet-indent-alist (bullet-levels shift-fn)
   "Return a hash table with keys from BULLET-LEVELS and values.
 BULLET-LEVELS is keys.
 BULLET-LEVELS is also values, but shifted with SHIFT-FN."
-  (hash-table-of-alist
+  (bpg-hash-table-of-alist
    (seq-mapn 'cons bullet-levels (funcall shift-fn bullet-levels))))
 
-(defun gen-bullet-indent-right-alist (bullet-levels)
+(defun bpg-gen-bullet-indent-right-alist (bullet-levels)
   "Generate hash table mapping for bullets a level higher.
 - => +; * => --  ; ...
 BULLET-LEVELS is a list of ordered bullets."
-  (gen-bullet-indent-alist bullet-levels 'cdr))
+  (bpg-gen-bullet-indent-alist bullet-levels 'cdr))
 
-(defun gen-bullet-indent-left-alist (bullet-levels)
+(defun bpg-gen-bullet-indent-left-alist (bullet-levels)
   "Generate hash table mapping for bullets a level lower.
 - => \"\" ; + => - ; -- => * ; ...
 BULLET-LEVELS is a list of ordered bullets."
-  (gen-bullet-indent-alist
+  (bpg-gen-bullet-indent-alist
    bullet-levels
    (apply-partially 'cons "")))
 
-(defgroup proof-general-bullet-mode ()
+(defgroup proof-general-bullet ()
   "Minor mode to Coq bullet autocompletion."
   :group 'programming)
 
 (defcustom bpg-bullet-abc "-+*" "Bullet characters in the order."
-  :type 'string :group 'proof-general-bullet-mode)
+  :type 'string :group 'proof-general-bullet)
 
 (defvar bpg-bullet-levels (apply 'append
-                                 (gen-rewrite-rules
+                                 (bpg-gen-rewrite-rules
                                   (mapcar 'char-to-string
                                           (string-to-list bpg-bullet-abc))
                                   2)))
-(defvar bpg-indent-left-map (gen-bullet-indent-left-alist bpg-bullet-levels))
-(defvar bpg-indent-right-map (gen-bullet-indent-right-alist bpg-bullet-levels))
+(defvar bpg-indent-left-map (bpg-gen-bullet-indent-left-alist bpg-bullet-levels))
+(defvar bpg-indent-right-map (bpg-gen-bullet-indent-right-alist bpg-bullet-levels))
 
 (defun bpg-indent-region (bullet-map)
   "Rewrite bullets in the region according the the BULLET-MAP."
@@ -87,15 +88,9 @@ BULLET-LEVELS is a list of ordered bullets."
                   (let ((new-bullet (gethash bullet bullet-map)))
                     ;; (message "new bullet: %s" new-bullet)
                     (when new-bullet
-                      (replace-string-in-region bullet new-bullet bullet-start bullet-end))))))
-            )
+                      (replace-string-in-region bullet new-bullet bullet-start bullet-end)))))))
           (setq lines-in-region (- lines-in-region 1))
-          (forward-line)
-          )
-        )
-      )
-    )
-  )
+          (forward-line))))))
 
 
 (defun bpg-indent-left ()

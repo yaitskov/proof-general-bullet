@@ -21,7 +21,7 @@
 (require 'eieio)
 (require 'bpg-response-buffer)
 
-(defun extract-bullet (msg)
+(defun bpg-extract-bullet (msg)
   "True if MSG states that subproof is complete, but unfocused goals remain."
   (and
    (string-match
@@ -31,7 +31,7 @@
     msg)
    (match-string 1 msg)))
 
-(defun find-next-bullet ()
+(defun bpg-find-next-bullet ()
   "Return indent as a space string if point preceds a line with a bullet."
   (save-excursion
     (skip-chars-forward " \t\n")
@@ -41,61 +41,57 @@
        (re-search-forward "^ *\\([^ \n]+\\)" (+ 88 (point)) t)
        (match-string-no-properties 1)))))
 
-(defun find-bullet-indent (b)
+(defun bpg-find-bullet-indent (b)
   "Find indent for bullets B."
   (save-excursion
     (and
      (re-search-backward (rx line-start (group (1+ " ")) (literal b) " ") nil t)
      (match-string-no-properties 1))))
 
-(defclass InsertBulletIfMissing (ResponseBufferHandler)
+(defclass bpg-InsertBulletIfMissing (bpg-ResponseBufferHandler)
   ((bullet :initarg :bullet)
    (eval-next-cb :initarg :eval-next-cb))
 "")
 
 (cl-defmethod
-  handle-response-buffer ((o InsertBulletIfMissing))
+  bpg-handle-response-buffer ((o bpg-InsertBulletIfMissing))
   "O this."
   (let ((next-bullet (slot-value o 'bullet)))
-    (mytrace "next-bullet: [%s]" next-bullet)
+    (bpg-mytrace "next-bullet: [%s]" next-bullet)
     (when next-bullet
-      (let ((following-bullet (find-next-bullet)))
-        (mytrace "following-bullet: [%s]" following-bullet)
+      (let ((following-bullet (bpg-find-next-bullet)))
+        (bpg-mytrace "following-bullet: [%s]" following-bullet)
         (if (and following-bullet (equal following-bullet next-bullet))
             (progn
               (funcall (slot-value o 'eval-next-cb))
               (when (bolp) (left-char 1))
               (when (not (= (char-from-name "SPACE") (preceding-char)))
                 (insert " ")))
-          (let ((next-bullet-indent (find-bullet-indent next-bullet)))
+          (let ((next-bullet-indent (bpg-find-bullet-indent next-bullet)))
             (when next-bullet-indent
-              (mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
+              (bpg-mytrace "next-bullet-indent: %d [%s]" (length next-bullet-indent) next-bullet-indent)
               (when (not (bolp))
                 (insert "\n"))
               (insert next-bullet-indent next-bullet " ")
               (when (not (eolp))
                 (insert "\n") (left-char 1))
-              (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
+              (bpg-mytrace "eval-next; point %d; point-max %d " (point) (point-max))
               (funcall (slot-value o 'eval-next-cb))
               (when (bolp)
-                (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-                (left-char 1))))
-          )
-        )
-      )
-    )
-  )
+                (bpg-mytrace "before left-char; point %d; point-max %d " (point) (point-max))
+                (left-char 1)))))))))
 
-(defclass SubproofRemains (ResponseBufferClassifier) () "See `InsertBulletIfMissing'")
+(defclass bpg-SubproofRemains (bpg-ResponseBufferClassifier) ()
+  "See `bpg-InsertBulletIfMissing'")
 
-(cl-defmethod try-to-classify
-  ((_ SubproofRemains) response-buffer-content eval-next-cb)
+(cl-defmethod bpg-try-to-classify
+  ((_ bpg-SubproofRemains) response-buffer-content eval-next-cb)
   "RESPONSE-BUFFER-CONTENT.
 EVAL-NEXT-CB callback."
-  (let ((next-bullet (extract-bullet response-buffer-content)))
+  (let ((next-bullet (bpg-extract-bullet response-buffer-content)))
     (when next-bullet
-      (InsertBulletIfMissing :bullet next-bullet
-                             :eval-next-cb eval-next-cb))))
+      (bpg-InsertBulletIfMissing :bullet next-bullet
+                                 :eval-next-cb eval-next-cb))))
 
 (provide 'bpg-bullet)
 ;;; bpg-bullet.el ends here

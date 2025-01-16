@@ -18,18 +18,17 @@
 ;;; Code:
 (require 'cl-macs)
 
-(cl-defun hash-table-of-alist (al &optional (default-ht))
+(cl-defun bpg-hash-table-of-alist (al &optional (default-ht))
   "Put all entries of alist AL into a new hash table if DEFAULT-HT is nil.
 
 a hash table is returned"
   (let ((ht (or default-ht (make-hash-table :test 'equal))))
     (mapc (lambda (e)
-            (puthash (car e) (cdr e) ht)
-            )
+            (puthash (car e) (cdr e) ht))
           al)
     ht))
 
-(defun alist-of-hash-table (ht)
+(defun bpg-alist-of-hash-table (ht)
   "Convert a hash table HT into alist."
   (let ((al '()))
     (maphash (lambda (k v) (setq al (cons (cons k v) al))) ht)

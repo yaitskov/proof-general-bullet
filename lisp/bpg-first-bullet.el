@@ -24,10 +24,10 @@
 (require 'bpg-bullet)
 (require 'bpg-indent)
 
-(defclass InsertFirstBulletIfMissing (ResponseBufferHandler)
+(defclass bpg-InsertFirstBulletIfMissing (bpg-ResponseBufferHandler)
   ((eval-next-cb :initarg :eval-next-cb)))
 
-(defun current-line-indent ()
+(defun bpg-current-line-indent ()
   "Return a string of spaces.
 Its length is equal to distance between line start and
 first non space character excluding bullet if presented."
@@ -39,35 +39,32 @@ first non space character excluding bullet if presented."
                     2))))
 
 (cl-defmethod
-  handle-response-buffer ((o InsertFirstBulletIfMissing))
+  bpg-handle-response-buffer ((o bpg-InsertFirstBulletIfMissing))
   "Insert a bullet if goals buffer has more than 1 subgoal.
 O this."
-  (let ((bullet (or (gethash (find-closest-parent-bullet) bpg-indent-right-map)
+  (let ((bullet (or (gethash (bpg-find-closest-parent-bullet) bpg-indent-right-map)
                     (car bpg-bullet-levels)))
-        (following-bullet (find-next-bullet)))
-    (mytrace "following-bullet: [%s]" following-bullet)
+        (following-bullet (bpg-find-next-bullet)))
+    (bpg-mytrace "following-bullet: [%s]" following-bullet)
     (if (and following-bullet (equal following-bullet bullet))
         (progn
           (funcall (slot-value o 'eval-next-cb))
           (when (bolp) (left-char 1))
           (when (not (= (char-from-name "SPACE") (preceding-char)))
             (insert " ")))
-      (let ((bullet-indent (current-line-indent)))
+      (let ((bullet-indent (bpg-current-line-indent)))
         (when (not (bolp))
           (insert "\n"))
         (insert bullet-indent bullet " ")
         (when (not (eolp))
           (insert "\n") (left-char 1))
-        (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
+        (bpg-mytrace "eval-next; point %d; point-max %d " (point) (point-max))
         (funcall (slot-value o 'eval-next-cb))
         (when (bolp)
-          (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
-          (left-char 1)))
-      )
-    )
-  )
+          (bpg-mytrace "before left-char; point %d; point-max %d " (point) (point-max))
+          (left-char 1))))))
 
-(defun find-closest-parent-bullet ()
+(defun bpg-find-closest-parent-bullet ()
   "Return closest parent bullet or nil."
   (let ((current-indent
          (save-excursion
@@ -79,27 +76,20 @@ O this."
                do
                (move-beginning-of-line 1)
                (let ((i (skip-chars-forward " ")))
-                 (mytrace "i = %d; current-indent = %d" i current-indent)
+                 (bpg-mytrace "i = %d; current-indent = %d" i current-indent)
                  (when (<= i current-indent)
                    (let ((s (point))
                          (l (skip-chars-forward "-+*")))
                      (when (> l 0)
                        (cl-return (buffer-substring s (+ s l)))))
-                   (setq current-indent i)
-                   )
-                 )
-               (unless (line-move -1 t) (cl-return nil))
-               )
+                   (setq current-indent i)))
+               (unless (line-move -1 t) (cl-return nil))))))
 
-      )
-    )
-  )
+(defclass bpg-SubGoalsDetector (bpg-ResponseBufferClassifier) ())
 
-(defclass SubGoalsDetector (ResponseBufferClassifier) ())
-
-(cl-defmethod try-to-classify
-  ((_ SubGoalsDetector) _response-buffer-content eval-next-cb)
-  "Return new `InsertFirstBulletIfMissing' if *goals* buffer has subgoals.
+(cl-defmethod bpg-try-to-classify
+  ((_ bpg-SubGoalsDetector) _response-buffer-content eval-next-cb)
+  "Return new `bpg-InsertFirstBulletIfMissing' if *goals* buffer has subgoals.
 EVAL-NEXT-CB eval next tactic."
   (with-current-buffer proof-goals-buffer
     (save-excursion
@@ -107,9 +97,10 @@ EVAL-NEXT-CB eval next tactic."
       ;; Example of first line in *goals* buffer relevant to this behavior
       ;; 2 goals (ID 13)
 
-      (mytrace "goals buffer is empty ?: %s" (buffer-substring-no-properties (point-min) (point-max)))
+      (bpg-mytrace "goals buffer is empty ?: %s"
+                   (buffer-substring-no-properties (point-min) (point-max)))
       (when (looking-at "[2-9][0-9]* goals [(]ID [0-9]+[)]")
-        (InsertFirstBulletIfMissing :eval-next-cb eval-next-cb)))))
+        (bpg-InsertFirstBulletIfMissing :eval-next-cb eval-next-cb)))))
 
 (provide 'bpg-first-bullet)
 ;;; bpg-first-bullet.el ends here

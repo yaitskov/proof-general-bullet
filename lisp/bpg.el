@@ -1,11 +1,11 @@
-;;; proof-general-bullet.el --- PG Coq bullet automation  -*- lexical-binding: t -*-
+;;; bpg.el --- PG Coq bullet automation                         -*- lexical-binding: t -*-
 
 ;; Author: Daniil Iaitskov <dyaitskov@gmail.com>
 ;; Maintainer: Daniil Iaitskov <dyaitskov@gmail.com>
 ;; URL: https://github.com/yaitskov/proof-general-bullet
-;; Version: v0.0.1
-;; Keywords: proof assistant, PG, proof-general, Coq, Rocq, goal selector, autocomplete
-;; Package-Requires ((emacs "30.0") (proof-general "20241126.32"))
+;; Version: 0.0.1
+;; Keywords: tools, processes, languages
+;; Package-Requires: ((emacs "30.0") (proof-general "20241126.32"))
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -46,29 +46,29 @@
 (require 'bpg-first-bullet)
 (require 'bpg-response-buffer)
 
-(defun get-response-buffer-message ()
+(defun bpg-get-response-buffer-message ()
   "Return content of active Coq buffer."
   (with-current-buffer proof-response-buffer
     (buffer-string)))
 
-(defvar response-buffer-classifiers
-  (list (SubproofRemains) (QedDetector) (SubGoalsDetector)))
+(defvar bpg-response-buffer-classifiers
+  (list (bpg-SubproofRemains) (bpg-QedDetector) (bpg-SubGoalsDetector)))
 
-(defun handle-response-buffer-content (eval-next-cb)
+(defun bpg-handle-response-buffer-content (eval-next-cb)
   "Do autocompletion if neede to an active Coq buffer.
 EVAL-NEXT-CB eval tactic."
-  (let ((rbm (get-response-buffer-message)))
-    (cl-loop for m in response-buffer-classifiers do
-             (let ((h (try-to-classify m rbm eval-next-cb)))
+  (let ((rbm (bpg-get-response-buffer-message)))
+    (cl-loop for m in bpg-response-buffer-classifiers do
+             (let ((h (bpg-try-to-classify m rbm eval-next-cb)))
                (when h
-                 (handle-response-buffer h)
+                 (bpg-handle-response-buffer h)
                  (cl-return) ;; break loop
                  )))))
 
 ;; help to avoid looping when content of response buffer triggers correction
-(defvar C-c_C-n-hit-counter 0)
+(defvar bpg-C-c_C-n-hit-counter 0)
 
-(defun coq-auto-bullet-hook-binding ()
+(defun bpg-coq-auto-bullet-hook-binding ()
   "Hook behavior for processing Coq response and goals buffer states."
   (cl-flet
       ((is-goals-empty ()
@@ -76,34 +76,33 @@ EVAL-NEXT-CB eval tactic."
        (is-response-empty ()
          (with-current-buffer proof-response-buffer (= (point-min) (point-max)))))
     (if (and (is-response-empty) (is-goals-empty))
-        (mytrace "response and goal buffers are empty - skip hook")
-        (let ((cnc (1- C-c_C-n-hit-counter)))
-    (when (<= 0 cnc)
-        (progn
-          (setq C-c_C-n-hit-counter 0)
-          (with-current-buffer proof-script-buffer
-            (handle-response-buffer-content 'proof-assert-next-command-interactive)
-            )))))))
+        (bpg-mytrace "response and goal buffers are empty - skip hook")
+        (let ((cnc (1- bpg-C-c_C-n-hit-counter)))
+          (when (<= 0 cnc)
+            (progn
+              (setq bpg-C-c_C-n-hit-counter 0)
+              (with-current-buffer proof-script-buffer
+                (bpg-handle-response-buffer-content 'proof-assert-next-command-interactive))))))))
 
-(defun proof-assert-next-command-interactive-shortcut ()
+(defun bpg-proof-assert-next-command-interactive ()
   "Wrapper around `proof-assert-next-command-interactive' enables response hook."
   (interactive)
-  (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
+  (setq bpg-C-c_C-n-hit-counter (1+ bpg-C-c_C-n-hit-counter))
   (proof-assert-next-command-interactive))
 
-(defun proof-goto-point-interactive (&optional RAW)
+(defun bpg-proof-goto-point (&optional RAW)
   "Wrapper around `proof-goto-point' enables response hook.
 RAW is fed to `proof-goto-point'."
   (interactive)
-  (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
+  (setq bpg-C-c_C-n-hit-counter (1+ bpg-C-c_C-n-hit-counter))
   (proof-goto-point RAW))
 
 (add-hook
  'coq-mode-hook
  (lambda ()
-   (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
-   (define-key (current-local-map) [(control c) (control n)] 'proof-assert-next-command-interactive-shortcut)
-   (define-key (current-local-map) [(control c) (control return)] 'proof-goto-point-interactive)))
+   (add-hook 'proof-shell-handle-delayed-output-hook #'bpg-coq-auto-bullet-hook-binding 100)
+   (define-key (current-local-map) [(control c) (control n)] 'bpg-proof-assert-next-command-interactive)
+   (define-key (current-local-map) [(control c) (control return)] 'bpg-proof-goto-point)))
 
-(provide 'proof-general-bullet)
-;;; proof-general-bullet.el ends here
+(provide 'bpg)
+;;; bpg.el ends here

@@ -1,4 +1,8 @@
-;;; bpg-response-buffer.el --- abstract classes                               -*- lexical-binding: t; -*-
+;;; bpg-response-buffer.el --- Abstract classes                               -*- lexical-binding: t; -*-
+
+;; URL: https://github.com/yaitskov/proof-general-bullet
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "30.0"))
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -16,32 +20,34 @@
 
 ;;; Commentary:
 
+;; Classes/Interfaces
+
 ;;; Code:
 (require 'eieio)
 
-(defun mytrace (fmt &rest args)
+(defun bpg-mytrace (fmt &rest args)
   "An alias to `message' to quickly enable/disable logging during debugging.
 FMT and ARGS are passed to `message' as-is."
   (identity (list fmt args)))
   ;; (apply 'message fmt args))
 
-(defclass ResponseBufferHandler () ()
+(defclass bpg-ResponseBufferHandler () ()
   "A base class for behaviors triggered by content of response buffer or goals buffer"
   :abstract t)
 
 (cl-defmethod
-  handle-response-buffer ((_ ResponseBufferHandler))
+  bpg-handle-response-buffer ((_ bpg-ResponseBufferHandler))
   "React to content in *response* or *goals* buffers."
- (error "`handle-response-buffer' is not implemented"))
+ (error "`bpg-handle-response-buffer' is not implemented"))
 
-(defclass ResponseBufferClassifier () ()
-  "`ResponseBufferHandler' factory"
+(defclass bpg-ResponseBufferClassifier () ()
+  "`bpg-ResponseBufferHandler' factory"
   :abstract t)
 
-(cl-defmethod try-to-classify ((_ ResponseBufferClassifier)
-                            _response-buffer-content _eval-next-cb)
-  "`ResponseBufferHandler' factory."
-  (error "`try-to-classify' is not implemented"))
+(cl-defmethod bpg-try-to-classify ((_ bpg-ResponseBufferClassifier)
+                                   _response-buffer-content _eval-next-cb)
+  "`bpg-ResponseBufferHandler' factory."
+  (error "`bpg-try-to-classify' is not implemented"))
 
 (provide 'bpg-response-buffer)
 ;;; bpg-response-buffer.el ends here

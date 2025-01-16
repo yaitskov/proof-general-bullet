@@ -1,4 +1,4 @@
-(require 'proof-general-bullet)
+(require 'bpg)
 (require 'ert)
 
 (defmacro with-buffer-x (buffer-var buffer-name cb content)
@@ -16,25 +16,24 @@
 (defun with-goals-buffer (cb buf-content)
   (with-buffer-x proof-goals-buffer "*goals*" cb buf-content))
 
-
 (ert-deftest get-response-buffer-message-out-of-coq-mode ()
   (with-response-buffer
-   (lambda () (should (equal "hello" (get-response-buffer-message))))
+   (lambda () (should (equal "hello" (bpg-get-response-buffer-message))))
    "hello"))
 
 (ert-deftest extract-bullet-match ()
-  (should (equal (extract-bullet "This subproof is complete, but there are some unfocused goals.
+  (should (equal (bpg-extract-bullet "This subproof is complete, but there are some unfocused goals.
  Focus next goal with bullet +.
 ")
                  "+"))
-  (should (equal (extract-bullet "This subproof is complete, but there are some unfocused goals.
+  (should (equal (bpg-extract-bullet "This subproof is complete, but there are some unfocused goals.
  Focus next goal with bullet ---.")
                  "---"))
   )
 
 (ert-deftest extract-bullet-dont-match ()
-  (should (null (extract-bullet "No more goals.")))
-  (should (null (extract-bullet "This subproof is complete, but there are some unfocused goals.
+  (should (null (bpg-extract-bullet "No more goals.")))
+  (should (null (bpg-extract-bullet "This subproof is complete, but there are some unfocused goals.
  Focus next goal with bullet ??.")))
   )
 
@@ -45,7 +44,7 @@
                         (search-backward "(")
                         (kill-line)
                         (with-response-buffer
-                         (lambda () (handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
+                         (lambda () (bpg-handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
                          "This subproof is complete, but there are some unfocused goals.
  Focus next goal with bullet -.
 "
@@ -62,7 +61,7 @@
                          (lambda ()
                            (with-response-buffer
                             (lambda ()
-                              (handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
+                              (bpg-handle-response-buffer-content (apply-partially 'move-end-of-line 1)))
                             ""))
                          "goals buffer content should be irrelevant"
                          ))))
@@ -74,7 +73,7 @@
                         (search-backward "(")
                         (kill-sexp)
                         (with-response-buffer
-                         (lambda () (handle-response-buffer-content (lambda () nil)))
+                         (lambda () (bpg-handle-response-buffer-content (lambda () nil)))
                          "No more goals.")
                         )))
 
@@ -82,12 +81,12 @@
   (with-temp-buffer
     (insert "  - split.")
     (goto-char (point-max))
-    (should (equal (find-closest-parent-bullet) "-"))
+    (should (equal (bpg-find-closest-parent-bullet) "-"))
     )
     (with-temp-buffer
     (insert "  - split.")
     (goto-char (point-min))
-    (should (null (find-closest-parent-bullet)))
+    (should (null (bpg-find-closest-parent-bullet)))
     )
   )
 
@@ -100,7 +99,7 @@
                         (with-goals-buffer
                          (lambda ()
                            (with-response-buffer
-                            (lambda () (handle-response-buffer-content (lambda () nil)))
+                            (lambda () (bpg-handle-response-buffer-content (lambda () nil)))
                             ""))
                          "2 goals (ID 13)\n\ngoal 2 ..."
                          ))))
@@ -114,7 +113,7 @@
                         (with-goals-buffer
                          (lambda ()
                            (with-response-buffer
-                            (lambda () (handle-response-buffer-content (lambda () nil)))
+                            (lambda () (bpg-handle-response-buffer-content (lambda () nil)))
                             ""))
                          "ok"
                          ))))
