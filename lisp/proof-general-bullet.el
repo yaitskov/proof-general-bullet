@@ -38,6 +38,7 @@
 ;;; Code:
 
 (require 'proof-general)
+(require 'pg-user)
 (require 'bpg-indent)
 (require 'bpg-bullet)
 (require 'bpg-bullet-sync)
@@ -97,12 +98,12 @@ RAW is fed to `proof-goto-point'."
   (setq C-c_C-n-hit-counter (1+ C-c_C-n-hit-counter))
   (proof-goto-point RAW))
 
-(add-hook 'coq-mode-hook
-          (lambda ()
-            (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
-            (define-key coq-mode-map [(control c) (control n)] 'proof-assert-next-command-interactive-shortcut)
-            (define-key coq-mode-map [(control c) (control return)] 'proof-goto-point-interactive)))
-
+(add-hook
+ 'coq-mode-hook
+ (lambda ()
+   (add-hook 'proof-shell-handle-delayed-output-hook #'coq-auto-bullet-hook-binding 100)
+   (define-key (current-local-map) [(control c) (control n)] 'proof-assert-next-command-interactive-shortcut)
+   (define-key (current-local-map) [(control c) (control return)] 'proof-goto-point-interactive)))
 
 (provide 'proof-general-bullet)
 ;;; proof-general-bullet.el ends here

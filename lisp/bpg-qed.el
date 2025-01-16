@@ -38,7 +38,7 @@
   "Insert Qed if it is missing before point.
 O this."
   (if (is-qed-next)
-      (funcall (slot-value o :eval-next-cb))
+      (funcall (slot-value o 'eval-next-cb))
     (progn
       (when (not (bolp))
         (skip-chars-forward " \t\n")
@@ -47,7 +47,7 @@ O this."
       (when (or (not (eolp))
                 (not (char-after))) ;; last buffer line without \n
         (insert "\n"))
-      (funcall (slot-value o :eval-next-cb))
+      (funcall (slot-value o 'eval-next-cb))
       )
     )
   )

@@ -56,14 +56,14 @@
 (cl-defmethod
   handle-response-buffer ((o InsertBulletIfMissing))
   "O this."
-  (let ((next-bullet (slot-value o :bullet)))
+  (let ((next-bullet (slot-value o 'bullet)))
     (mytrace "next-bullet: [%s]" next-bullet)
     (when next-bullet
       (let ((following-bullet (find-next-bullet)))
         (mytrace "following-bullet: [%s]" following-bullet)
         (if (and following-bullet (equal following-bullet next-bullet))
             (progn
-              (funcall (slot-value o :eval-next-cb))
+              (funcall (slot-value o 'eval-next-cb))
               (when (bolp) (left-char 1))
               (when (not (= (char-from-name "SPACE") (preceding-char)))
                 (insert " ")))
@@ -76,7 +76,7 @@
               (when (not (eolp))
                 (insert "\n") (left-char 1))
               (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-              (funcall (slot-value o :eval-next-cb))
+              (funcall (slot-value o 'eval-next-cb))
               (when (bolp)
                 (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
                 (left-char 1))))

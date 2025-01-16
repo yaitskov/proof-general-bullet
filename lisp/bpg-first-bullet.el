@@ -18,14 +18,14 @@
 ;;; Code:
 
 (require 'eieio)
+(require 'proof-general)
+(require 'pg-vars)
 (require 'bpg-response-buffer)
 (require 'bpg-bullet)
 (require 'bpg-indent)
 
 (defclass InsertFirstBulletIfMissing (ResponseBufferHandler)
-  ((bullet :initarg :bullet)
-   (eval-next-cb :initarg :eval-next-cb))
-  "")
+  ((eval-next-cb :initarg :eval-next-cb)))
 
 (defun current-line-indent ()
   "Return a string of spaces.
@@ -48,7 +48,7 @@ O this."
     (mytrace "following-bullet: [%s]" following-bullet)
     (if (and following-bullet (equal following-bullet bullet))
         (progn
-          (funcall (slot-value o :eval-next-cb))
+          (funcall (slot-value o 'eval-next-cb))
           (when (bolp) (left-char 1))
           (when (not (= (char-from-name "SPACE") (preceding-char)))
             (insert " ")))
@@ -59,7 +59,7 @@ O this."
         (when (not (eolp))
           (insert "\n") (left-char 1))
         (mytrace "eval-next; point %d; point-max %d " (point) (point-max))
-        (funcall (slot-value o :eval-next-cb))
+        (funcall (slot-value o 'eval-next-cb))
         (when (bolp)
           (mytrace "before left-char; point %d; point-max %d " (point) (point-max))
           (left-char 1)))
@@ -85,7 +85,7 @@ O this."
                          (l (skip-chars-forward "-+*")))
                      (when (> l 0)
                        (cl-return (buffer-substring s (+ s l)))))
-                   (setq currentl-indent i)
+                   (setq current-indent i)
                    )
                  )
                (unless (line-move -1 t) (cl-return nil))
