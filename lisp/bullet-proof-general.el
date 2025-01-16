@@ -1,4 +1,4 @@
-;;; bpg.el --- PG Coq bullet automation                         -*- lexical-binding: t -*-
+;;; bullet-proof-general.el --- PG Coq bullet automation                         -*- lexical-binding: t -*-
 
 ;; Author: Daniil Iaitskov <dyaitskov@gmail.com>
 ;; Maintainer: Daniil Iaitskov <dyaitskov@gmail.com>
@@ -104,5 +104,5 @@ RAW is fed to `proof-goto-point'."
    (define-key (current-local-map) [(control c) (control n)] 'bpg-proof-assert-next-command-interactive)
    (define-key (current-local-map) [(control c) (control return)] 'bpg-proof-goto-point)))
 
-(provide 'bpg)
-;;; bpg.el ends here
+(provide 'bullet-proof-general)
+;;; bullet-proof-general.el ends here

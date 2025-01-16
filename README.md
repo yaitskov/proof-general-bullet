@@ -20,7 +20,7 @@ Append following lines to `~/.emacs.d/init.el` file:
 
 ``` emacs-lisp
 (add-to-list 'load-path "~/.emacs.d/proof-general-bullet/lisp")
-(require 'bpg)
+(require 'bullet-proof-general)
 ```
 
 ## Features overview

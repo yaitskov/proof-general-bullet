@@ -1,4 +1,3 @@
-;; (add-to-list 'load-path "~/pro/my-emacs/proof-general-bullet/src")
 (require 'bpg-collection)
 (require 'ert)
 

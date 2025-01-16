@@ -1,4 +1,4 @@
-(require 'bpg)
+(require 'bullet-proof-general)
 (require 'ert)
 
 (defmacro with-buffer-x (buffer-var buffer-name cb content)
