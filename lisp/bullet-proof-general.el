@@ -101,7 +101,7 @@ RAW is fed to `proof-goto-point'."
   "Bullet Proof General mode.
 This command toggles an auxiliary mode for \\[coq-mode] which
 inserts bullets (goal selectors) automatically."
-  :lighter "⃠⁍"
+  :lighter " ٭٭٭٭"
   :group 'bullet-proof-general
   :keymap
   (list
