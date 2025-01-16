@@ -1,4 +1,8 @@
-;;; bpg-bullet-sync.el --- rewrite bullets according to line indentation  -*- lexical-binding: t; -*-
+;;; bpg-bullet-sync.el --- Rewrite bullets according to line indentation  -*- lexical-binding: t; -*-
+
+;; URL: https://github.com/yaitskov/proof-general-bullet
+;; Version: 0.0.1
+;; Package-Requires: ((emacs "30.0"))
 
 ;; The software is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -26,8 +30,7 @@
        (cons (rx line-start (group (= 6 " ")) (regexp bpg-bullet-regexp)) "\\1* ")
        (cons (rx line-start (group (** 8 10 " ")) (regexp bpg-bullet-regexp)) "\\1-- ")
        (cons (rx line-start (group (** 11 13 " ")) (regexp bpg-bullet-regexp)) "\\1++ ")
-       (cons (rx line-start (group (** 14 15 " ")) (regexp bpg-bullet-regexp)) "\\1** ")
-       ))
+       (cons (rx line-start (group (** 14 15 " ")) (regexp bpg-bullet-regexp)) "\\1** ")))
 
 (defun bpg-sync-bullets-by-indent ()
   "Align bullets with line indentation.
@@ -69,17 +72,9 @@ After:
                  (goto-char start)
                  (while (re-search-forward (car replace-pair) b t)
                              (replace-match (cdr replace-pair)))))
-      ;; fix indent
-      ;; (goto-char start)
-      ;; (forward-line lines-in-region)
-      ;; (indent-region start (point))
-      ;; restore position
       (goto-char start)
       (forward-line (- point-line start-line))
-      (forward-char cols)
-      )
-    )
-  )
+      (forward-char cols))))
 
 (provide 'bpg-bullet-sync)
 ;;; bpg-bullet-sync.el ends here

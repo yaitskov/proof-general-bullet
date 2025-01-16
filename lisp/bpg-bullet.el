@@ -50,8 +50,7 @@
 
 (defclass bpg-InsertBulletIfMissing (bpg-ResponseBufferHandler)
   ((bullet :initarg :bullet)
-   (eval-next-cb :initarg :eval-next-cb))
-"")
+   (eval-next-cb :initarg :eval-next-cb)))
 
 (cl-defmethod
   bpg-handle-response-buffer ((o bpg-InsertBulletIfMissing))
@@ -82,7 +81,7 @@
                 (left-char 1)))))))))
 
 (defclass bpg-SubproofRemains (bpg-ResponseBufferClassifier) ()
-  "See `bpg-InsertBulletIfMissing'")
+  "See `bpg-InsertBulletIfMissing'.")
 
 (cl-defmethod bpg-try-to-classify
   ((_ bpg-SubproofRemains) response-buffer-content eval-next-cb)
