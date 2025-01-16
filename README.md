@@ -1,22 +1,18 @@
 # Bullet Proof-General
 
 This is a [proof general](https://github.com/ProofGeneral) extension
-which detects when the current subgoal, annotated with a bullet, is
-proved (after `C-c C-n` command) and automatically inserts a proper
-bullet for a next sibling subgoal or for a sibling of the goal (if
-last subgoal is proved).
+inserts bullets  (aka goal selectors) and `Qed.` automatiacally if they missing,
+after `C-c C-n` or `C-c C-entrer` command.
 
 ## Installation
 
-### sources
+### From sources
 
 ``` shell
 mkdir -p ~/.emacs.d
 cd ~/.emacs.d
 git clone https://github.com/yaitskov/proof-general-bullet.git
 ```
-
-### init.el
 
 Append following lines to `~/.emacs.d/init.el` file:
 
@@ -27,17 +23,27 @@ Append following lines to `~/.emacs.d/init.el` file:
 
 ## Features overview
 
+Feature effect appears after `C-c C-n` or `C-c C-enter`.
+
 ### Automatic bullet insertion
 
-If tactic generates subgoals and first subgoal uses a bullet as a goal
-selector (e.g. `-` not curly braces) then on transition to a following subgoal
-Emacs inserts bullet automatically.
+#### Use case 0
+Snippet before completion:
+``` coq
+  split.(* cursor is here *)
+```
+
+Snippet after completion:
+``` coq
+  split.
+  - (* cursor is here *)
+```
 
 #### Use case 1
 Snippet before completion:
 ``` coq
   split.
-  - auto. (* cursor is here *)
+  - auto.(* cursor is here *)
 ```
 
 Snippet after completion:
@@ -53,7 +59,7 @@ Snippet before completion:
   split.
   - inducion x.
     + auto.
-    + auto. (* cursor is here *)
+    + auto.(* cursor is here *)
 ```
 
 Snippet after completion:
@@ -63,6 +69,24 @@ Snippet after completion:
     + auto.
     + auto.
   - (* cursor is here *)
+```
+
+### Automatic `Qed.` insertion
+
+Snippet before completion:
+``` coq
+Lemma x : True.
+Proof.
+  reflexivity.(* cursor is here *)
+```
+
+Snippet after completion:
+``` coq
+Lemma x : True.
+Proof.
+  reflexivity.
+Qed.
+(* cursor is here *)
 ```
 
 ### Bulk bullet indentation
@@ -93,4 +117,27 @@ The proof of split subgoal bubbles up:
       * auto.
       * auto.
   - reflexivity.
+```
+
+### Bullet sync by indentation
+
+Function `bpg-sync-bullets-by-indent` rewrite bullets in the region
+with bullets which correspond to indentation in the line.
+
+Before:
+```coq
+  + idtac "x".
+    split.
+    * auto.
+    * auto.
+  + idtac "y".
+```
+
+After:
+```coq
+  - idtac "x".
+    split.
+    + auto.
+    * auto.
+  + idtac "y".
 ```
