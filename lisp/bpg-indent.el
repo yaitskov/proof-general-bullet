@@ -51,12 +51,12 @@ BULLET-LEVELS is a list of ordered bullets."
    bullet-levels
    (apply-partially 'cons "")))
 
-(defgroup proof-general-bullet ()
+(defgroup bullet-proof-general ()
   "Minor mode to Coq bullet autocompletion."
   :group 'programming)
 
 (defcustom bpg-bullet-abc "-+*" "Bullet characters in the order."
-  :type 'string :group 'proof-general-bullet)
+  :type 'string :group 'bullet-proof-general)
 
 (defvar bpg-bullet-levels (apply 'append
                                  (bpg-gen-rewrite-rules
