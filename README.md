@@ -1,5 +1,7 @@
 # Bullet Proof-General
 
+![GitHub Action Badge](https://github.com/cachix/install-nix-action/workflows/install-nix-action%20test/badge.svg)
+
 This is a [proof general](https://github.com/ProofGeneral) extension
 inserts bullets  (aka goal selectors) and `Qed.` automatiacally if they missing,
 after `C-c C-n` or `C-c C-entrer` command.
